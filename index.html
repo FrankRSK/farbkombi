@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farbkombi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --red: #e74c3c;
+            --blue: #3498db;
+            --green: #27ae60;
+            --yellow: #f1c40f;
+            --purple: #9b59b6;
+            --orange: #e67e22;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: radial-gradient(circle at center, #2c3e50, #34495e);
+            min-height: 100vh;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 10px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .game-board {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .secret-code {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .code-slot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .attempts {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .attempt-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 8px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .attempt-number {
+            font-weight: bold;
+            min-width: 30px;
+        }
+
+        .guess {
+            display: flex;
+            gap: 8px;
+        }
+
+        .guess-slot {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        .feedback {
+            display: flex;
+            gap: 5px;
+            margin-left: auto;
+        }
+
+        .feedback-slot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #fff;
+        }
+
+        .current-guess {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .current-slot {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .current-slot:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        }
+
+        .current-slot.selected {
+            box-shadow: 0 0 20px #f1c40f;
+            border-color: #f1c40f;
+        }
+
+        .color-palette {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .color-option:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(255,255,255,0.7);
+        }
+
+        .color-option.color-red {
+            background-color: var(--red);
+        }
+
+        .color-option.color-blue {
+            background-color: var(--blue);
+        }
+
+        .color-option.color-green {
+            background-color: var(--green);
+        }
+
+        .color-option.color-yellow {
+            background-color: var(--yellow);
+        }
+
+        .color-option.color-purple {
+            background-color: var(--purple);
+        }
+
+        .color-option.color-orange {
+            background-color: var(--orange);
+        }
+
+        .submit-area {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .status {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 30px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            margin: 5% auto;
+            padding: 30px;
+            border: none;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #fff;
+        }
+
+        .legal-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.7);
+            padding: 10px 15px;
+            border-radius: 25px;
+            text-decoration: none;
+            color: white;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .legal-link:hover {
+            background: rgba(0,0,0,0.9);
+            transform: translateY(-2px);
+        }
+
+        .difficulty-select {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .difficulty-select select {
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            font-size: 14px;
+        }
+
+        .role-select {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .role-select label {
+            margin: 0 15px;
+            cursor: pointer;
+        }
+
+        .win-animation {
+            animation: celebrate 1s ease infinite alternate;
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        .feedback-black { background-color: #2c3e50; }
+        .feedback-white { background-color: #ecf0f1; }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+            
+            .code-slot, .current-slot {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .guess-slot {
+                width: 30px;
+                height: 30px;
+            }
+            
+            .color-option {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🎯 Farbkombi</h1>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="showRules()">📋 Regeln</button>
+            <button class="btn btn-secondary" onclick="newGame()">🎮 Neues Spiel</button>
+            <button class="btn btn-secondary" onclick="toggleSound()">🔊 Sound</button>
+        </div>
+
+        <div class="role-select">
+            <label><input type="radio" name="role" value="guesser" checked> Ich rate</label>
+            <label><input type="radio" name="role" value="coder"> KI rät</label>
+        </div>
+
+        <div class="difficulty-select">
+            <label for="difficulty">KI-Schwierigkeit: </label>
+            <select id="difficulty">
+                <option value="easy">Einfach</option>
+                <option value="medium" selected>Mittel</option>
+                <option value="hard">Schwer</option>
+            </select>
+        </div>
+
+        <div class="game-board">
+            <div class="secret-code" id="secretCode">
+                <div class="code-slot">?</div>
+                <div class="code-slot">?</div>
+                <div class="code-slot">?</div>
+                <div class="code-slot">?</div>
+            </div>
+
+            <div class="status" id="status">Wähle deine Farben und beginne zu raten!</div>
+
+            <div id="playerGuessArea" style="display: block;">
+                <div class="current-guess" id="currentGuess">
+                    <div class="current-slot" onclick="selectSlot(0)"></div>
+                    <div class="current-slot" onclick="selectSlot(1)"></div>
+                    <div class="current-slot" onclick="selectSlot(2)"></div>
+                    <div class="current-slot" onclick="selectSlot(3)"></div>
+                </div>
+
+                <div class="color-palette">
+                    <div class="color-option color-red" onclick="selectColor('red')"></div>
+                    <div class="color-option color-blue" onclick="selectColor('blue')"></div>
+                    <div class="color-option color-green" onclick="selectColor('green')"></div>
+                    <div class="color-option color-yellow" onclick="selectColor('yellow')"></div>
+                    <div class="color-option color-purple" onclick="selectColor('purple')"></div>
+                    <div class="color-option color-orange" onclick="selectColor('orange')"></div>
+                </div>
+
+                <div class="submit-area">
+                    <button class="btn btn-success" onclick="submitGuess()" id="submitBtn" disabled>Versuch abgeben</button>
+                </div>
+            </div>
+
+            <div id="aiCodeArea" style="display: none;">
+                <div class="current-guess" id="aiCodeInput">
+                    <div class="current-slot" onclick="selectSlot(0)"></div>
+                    <div class="current-slot" onclick="selectSlot(1)"></div>
+                    <div class="current-slot" onclick="selectSlot(2)"></div>
+                    <div class="current-slot" onclick="selectSlot(3)"></div>
+                </div>
+
+                <div class="color-palette">
+                    <div class="color-option color-red" onclick="selectColor('red')"></div>
+                    <div class="color-option color-blue" onclick="selectColor('blue')"></div>
+                    <div class="color-option color-green" onclick="selectColor('green')"></div>
+                    <div class="color-option color-yellow" onclick="selectColor('yellow')"></div>
+                    <div class="color-option color-purple" onclick="selectColor('purple')"></div>
+                    <div class="color-option color-orange" onclick="selectColor('orange')"></div>
+                </div>
+
+                <div class="submit-area">
+                    <button class="btn btn-success" onclick="setSecretCode()" id="setCodeBtn" disabled>Code festlegen</button>
+                </div>
+            </div>
+
+            <div class="attempts" id="attempts"></div>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rulesModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRules()">&times;</span>
+            <h2>🎯 Farbkombi Regeln</h2>
+            <br>
+            <h3>Spielprinzip:</h3>
+            <p>Ein Spieler (Codierer) legt einen geheimen vierstelligen Farbcode aus 6 verfügbaren Farben fest. Der andere Spieler (Rater) versucht diesen Code zu erraten.</p>
+            <br>
+            <h3>Spielablauf:</h3>
+            <p>• Der Rater gibt einen Tipp ab (4 Farbstifte)</p>
+            <p>• Der Codierer gibt Hinweise:</p>
+            <p>&nbsp;&nbsp;- <strong>Schwarzer Stift:</strong> Richtige Farbe an richtiger Position</p>
+            <p>&nbsp;&nbsp;- <strong>Weißer Stift:</strong> Richtige Farbe an falscher Position</p>
+            <p>• Die Reihenfolge der Hinweise ist zufällig</p>
+            <p>• Jede Farbe kann mehrfach verwendet werden</p>
+            <br>
+            <h3>Ziel:</h3>
+            <p>Den Code mit möglichst wenigen Versuchen erraten (maximal 12 Versuche).</p>
+            <br>
+            <h3>Beispiel:</h3>
+            <p><strong>Geheimer Code:</strong> Grün-Rot-Blau-Grün</p>
+            <p><strong>1. Versuch:</strong> Rot-Gelb-Rot-Grün → 1 schwarz, 1 weiß</p>
+            <p><strong>2. Versuch:</strong> Grün-Grün-Orange-Rot → 1 schwarz, 2 weiß</p>
+        </div>
+    </div>
+
+    <a href="https://spiele.frank-kemper.com/index.php#rechtliches" target="_blank" class="legal-link">
+        Impressum & Datenschutz
+    </a>
+
+    <script>
+        // Game state
+        let gameState = {
+            secretCode: [],
+            currentGuess: ['', '', '', ''],
+            attempts: [],
+            selectedSlot: 0,
+            maxAttempts: 12,
+            gameOver: false,
+            soundEnabled: true,
+            difficulty: 'medium',
+            playerRole: 'guesser', // 'guesser' or 'coder'
+            aiGuesses: [],
+            possibleCodes: []
+        };
+
+        const colors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+        const colorNames = {
+            'red': 'Rot',
+            'blue': 'Blau', 
+            'green': 'Grün',
+            'yellow': 'Gelb',
+            'purple': 'Lila',
+            'orange': 'Orange'
+        };
+
+        // Sound effects
+        function playSound(type) {
+            if (!gameState.soundEnabled) return;
+            
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            let frequency, duration;
+            
+            switch(type) {
+                case 'click':
+                    frequency = 800;
+                    duration = 0.1;
+                    break;
+                case 'submit':
+                    frequency = 600;
+                    duration = 0.2;
+                    break;
+                case 'win':
+                    frequency = 1000;
+                    duration = 0.5;
+                    break;
+                case 'lose':
+                    frequency = 300;
+                    duration = 0.8;
+                    break;
+                default:
+                    return;
+            }
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // Initialize game
+        function initGame() {
+            updateRoleDisplay();
+            newGame();
+            updateSelectedSlot();
+        }
+
+        function updateRoleDisplay() {
+            const role = document.querySelector('input[name="role"]:checked').value;
+            gameState.playerRole = role;
+            
+            if (role === 'guesser') {
+                document.getElementById('playerGuessArea').style.display = 'block';
+                document.getElementById('aiCodeArea').style.display = 'none';
+                document.getElementById('status').textContent = 'Wähle deine Farben und beginne zu raten!';
+            } else {
+                document.getElementById('playerGuessArea').style.display = 'none';
+                document.getElementById('aiCodeArea').style.display = 'block';
+                document.getElementById('status').textContent = 'Lege deinen geheimen Code fest!';
+            }
+        }
+
+        function newGame() {
+            gameState.gameOver = false;
+            gameState.attempts = [];
+            gameState.currentGuess = ['', '', '', ''];
+            gameState.selectedSlot = 0;
+            gameState.difficulty = document.getElementById('difficulty').value;
+            
+            // Clear attempts display
+            document.getElementById('attempts').innerHTML = '';
+            
+            updateRoleDisplay();
+            
+            if (gameState.playerRole === 'guesser') {
+                // Generate secret code for player to guess
+                gameState.secretCode = generateRandomCode();
+                updateSecretCodeDisplay(true); // Hide the code
+                resetCurrentGuess();
+            } else {
+                // Player sets the code, AI will guess
+                gameState.secretCode = ['', '', '', ''];
+                updateSecretCodeDisplay(false); // Show slots for input
+                resetAiCodeInput();
+                initializeAI();
+            }
+            
+            updateSelectedSlot();
+            updateSubmitButton();
+        }
+
+        function generateRandomCode() {
+            const code = [];
+            for (let i = 0; i < 4; i++) {
+                code.push(colors[Math.floor(Math.random() * colors.length)]);
+            }
+            return code;
+        }
+
+        function resetCurrentGuess() {
+            gameState.currentGuess = ['', '', '', ''];
+            const slots = document.querySelectorAll('#currentGuess .current-slot');
+            slots.forEach(slot => {
+                slot.className = 'current-slot';
+                slot.style.backgroundColor = '';
+            });
+        }
+
+        function resetAiCodeInput() {
+            gameState.secretCode = ['', '', '', ''];
+            const slots = document.querySelectorAll('#aiCodeInput .current-slot');
+            slots.forEach(slot => {
+                slot.className = 'current-slot';
+                slot.style.backgroundColor = '';
+            });
+        }
+
+        function updateSecretCodeDisplay(hide = true) {
+            const secretCodeEl = document.getElementById('secretCode');
+            const slots = secretCodeEl.querySelectorAll('.code-slot');
+            
+            if (hide) {
+                slots.forEach(slot => {
+                    slot.textContent = '?';
+                    slot.style.backgroundColor = '';
+                    slot.className = 'code-slot';
+                });
+            } else {
+                slots.forEach((slot, index) => {
+                    if (gameState.secretCode[index]) {
+                        slot.textContent = '';
+                        slot.style.backgroundColor = getColorValue(gameState.secretCode[index]);
+                        slot.className = `code-slot color-${gameState.secretCode[index]}`;
+                    } else {
+                        slot.textContent = '?';
+                        slot.style.backgroundColor = '';
+                        slot.className = 'code-slot';
+                    }
+                });
+            }
+        }
+
+        function selectSlot(index) {
+            playSound('click');
+            gameState.selectedSlot = index;
+            updateSelectedSlot();
+        }
+
+        function updateSelectedSlot() {
+            const area = gameState.playerRole === 'guesser' ? 'currentGuess' : 'aiCodeInput';
+            const slots = document.querySelectorAll(`#${area} .current-slot`);
+            slots.forEach((slot, index) => {
+                if (index === gameState.selectedSlot) {
+                    slot.classList.add('selected');
+                } else {
+                    slot.classList.remove('selected');
+                }
+            });
+        }
+
+        function selectColor(color) {
+            playSound('click');
+            
+            if (gameState.playerRole === 'guesser') {
+                gameState.currentGuess[gameState.selectedSlot] = color;
+                updateCurrentGuessDisplay();
+            } else {
+                gameState.secretCode[gameState.selectedSlot] = color;
+                updateSecretCodeDisplay(false);
+                updateSetCodeButton();
+            }
+            
+            // Move to next slot
+            if (gameState.selectedSlot < 3) {
+                gameState.selectedSlot++;
+                updateSelectedSlot();
+            }
+            
+            updateSubmitButton();
+        }
+
+        function updateCurrentGuessDisplay() {
+            const slots = document.querySelectorAll('#currentGuess .current-slot');
+            slots.forEach((slot, index) => {
+                if (gameState.currentGuess[index]) {
+                    slot.style.backgroundColor = getColorValue(gameState.currentGuess[index]);
+                    slot.className = `current-slot color-${gameState.currentGuess[index]}`;
+                } else {
+                    slot.style.backgroundColor = '';
+                    slot.className = 'current-slot';
+                }
+                
+                if (index === gameState.selectedSlot) {
+                    slot.classList.add('selected');
+                }
+            });
+        }
+
+        function updateSubmitButton() {
+            const btn = document.getElementById('submitBtn');
+            const allSelected = gameState.currentGuess.every(color => color !== '');
+            btn.disabled = !allSelected || gameState.gameOver;
+        }
+
+        function updateSetCodeButton() {
+            const btn = document.getElementById('setCodeBtn');
+            const allSelected = gameState.secretCode.every(color => color !== '');
+            btn.disabled = !allSelected;
+        }
+
+        function getColorValue(colorName) {
+            const colorMap = {
+                'red': '#e74c3c',
+                'blue': '#3498db',
+                'green': '#27ae60',
+                'yellow': '#f1c40f',
+                'purple': '#9b59b6',
+                'orange': '#e67e22'
+            };
+            return colorMap[colorName] || '#ffffff';
+        }
+
+        function submitGuess() {
+            if (gameState.gameOver) return;
+            
+            playSound('submit');
+            
+            const feedback = calculateFeedback(gameState.currentGuess, gameState.secretCode);
+            gameState.attempts.push({
+                guess: [...gameState.currentGuess],
+                feedback: feedback
+            });
+            
+            displayAttempt(gameState.attempts.length, gameState.currentGuess, feedback);
+            
+            // Check if won
+            if (feedback.black === 4) {
+                gameWon();
+                return;
+            }
+            
+            // Check if max attempts reached
+            if (gameState.attempts.length >= gameState.maxAttempts) {
+                gameLost();
+                return;
+            }
+            
+            // Reset for next guess
+            resetCurrentGuess();
+            updateSubmitButton();
+            updateSelectedSlot();
+            
+            document.getElementById('status').textContent = 
+                `Versuch ${gameState.attempts.length + 1} von ${gameState.maxAttempts}`;
+        }
+
+        function setSecretCode() {
+            playSound('submit');
+            updateSecretCodeDisplay(true); // Hide the code now
+            document.getElementById('aiCodeArea').style.display = 'none';
+            document.getElementById('status').textContent = 'KI beginnt zu raten...';
+            
+            // Start AI guessing
+            setTimeout(() => {
+                makeAIGuess();
+            }, 1000);
+        }
+
+        function calculateFeedback(guess, secret) {
+            let black = 0;
+            let white = 0;
+            
+            // Count exact matches (black pegs)
+            const secretCopy = [...secret];
+            const guessCopy = [...guess];
+            
+            for (let i = 0; i < 4; i++) {
+                if (guess[i] === secret[i]) {
+                    black++;
+                    secretCopy[i] = null;
+                    guessCopy[i] = null;
+                }
+            }
+            
+            // Count color matches in wrong positions (white pegs)
+            for (let i = 0; i < 4; i++) {
+                if (guessCopy[i] !== null) {
+                    const secretIndex = secretCopy.indexOf(guessCopy[i]);
+                    if (secretIndex !== -1) {
+                        white++;
+                        secretCopy[secretIndex] = null;
+                    }
+                }
+            }
+            
+            return { black, white };
+        }
+
+        function displayAttempt(attemptNumber, guess, feedback) {
+            const attemptsEl = document.getElementById('attempts');
+            const attemptEl = document.createElement('div');
+            attemptEl.className = 'attempt-row';
+            
+            attemptEl.innerHTML = `
+                <div class="attempt-number">${attemptNumber}.</div>
+                <div class="guess">
+                    ${guess.map(color => 
+                        `<div class="guess-slot color-${color}" style="background-color: ${getColorValue(color)}"></div>`
+                    ).join('')}
+                </div>
+                <div class="feedback">
+                    ${Array(feedback.black).fill().map(() => '<div class="feedback-slot feedback-black"></div>').join('')}
+                    ${Array(feedback.white).fill().map(() => '<div class="feedback-slot feedback-white"></div>').join('')}
+                </div>
+            `;
+            
+            attemptsEl.appendChild(attemptEl);
+            attemptsEl.scrollTop = attemptsEl.scrollHeight;
+        }
+
+        function gameWon() {
+            gameState.gameOver = true;
+            playSound('win');
+            
+            if (gameState.playerRole === 'guesser') {
+                document.getElementById('status').innerHTML = 
+                    '🎉 <span class="win-animation">Herzlichen Glückwunsch! Du hast den Code geknackt!</span>';
+                revealSecretCode();
+            } else {
+                document.getElementById('status').innerHTML = 
+                    '🤖 <span class="win-animation">Die KI hat deinen Code geknackt!</span>';
+            }
+        }
+
+        function gameLost() {
+            gameState.gameOver = true;
+            playSound('lose');
+            
+            document.getElementById('status').textContent = 
+                '😞 Schade! Du hast alle Versuche aufgebraucht.';
+            revealSecretCode();
+        }
+
+        function revealSecretCode() {
+            const secretCodeEl = document.getElementById('secretCode');
+            const slots = secretCodeEl.querySelectorAll('.code-slot');
+            
+            slots.forEach((slot, index) => {
+                slot.style.backgroundColor = getColorValue(gameState.secretCode[index]);
+                slot.className = `code-slot color-${gameState.secretCode[index]}`;
+                slot.textContent = '';
+            });
+        }
+
+        // AI Implementation
+        function initializeAI() {
+            gameState.aiGuesses = [];
+            gameState.possibleCodes = generateAllPossibleCodes();
+        }
+
+        function generateAllPossibleCodes() {
+            const codes = [];
+            for (let i = 0; i < colors.length; i++) {
+                for (let j = 0; j < colors.length; j++) {
+                    for (let k = 0; k < colors.length; k++) {
+                        for (let l = 0; l < colors.length; l++) {
+                            codes.push([colors[i], colors[j], colors[k], colors[l]]);
+                        }
+                    }
+                }
+            }
+            return codes;
+        }
+
+        function makeAIGuess() {
+            if (gameState.gameOver) return;
+
+            let aiGuess;
+            
+            if (gameState.aiGuesses.length === 0) {
+                // First guess strategy based on difficulty
+                switch (gameState.difficulty) {
+                    case 'easy':
+                        aiGuess = [colors[0], colors[1], colors[2], colors[3]]; // Simple first guess
+                        break;
+                    case 'medium':
+                        aiGuess = ['red', 'red', 'blue', 'blue']; // Classic opening
+                        break;
+                    case 'hard':
+                        aiGuess = ['red', 'blue', 'green', 'yellow']; // Optimal opening
+                        break;
+                }
+            } else {
+                // Use strategy based on difficulty
+                switch (gameState.difficulty) {
+                    case 'easy':
+                        aiGuess = makeRandomGuess();
+                        break;
+                    case 'medium':
+                        aiGuess = makeSmartGuess();
+                        break;
+                    case 'hard':
+                        aiGuess = makeOptimalGuess();
+                        break;
+                }
+            }
+
+            // Display AI guess and get feedback
+            const feedback = calculateFeedback(aiGuess, gameState.secretCode);
+            gameState.aiGuesses.push({ guess: aiGuess, feedback: feedback });
+            
+            displayAttempt(gameState.aiGuesses.length, aiGuess, feedback);
+            
+            // Check if AI won
+            if (feedback.black === 4) {
+                gameWon();
+                return;
+            }
+            
+            // Check if max attempts reached
+            if (gameState.aiGuesses.length >= gameState.maxAttempts) {
+                gameState.gameOver = true;
+                playSound('win'); // Player wins if AI fails
+                document.getElementById('status').innerHTML = 
+                    '🎉 <span class="win-animation">Du hast gewonnen! Die KI konnte deinen Code nicht knacken!</span>';
+                return;
+            }
+            
+            // Filter possible codes based on feedback
+            filterPossibleCodes(aiGuess, feedback);
+            
+            // Continue guessing
+            document.getElementById('status').textContent = 
+                `KI Versuch ${gameState.aiGuesses.length + 1} von ${gameState.maxAttempts}`;
+            
+            setTimeout(() => {
+                makeAIGuess();
+            }, 2000); // 2 second delay between AI guesses
+        }
+
+        function makeRandomGuess() {
+            if (gameState.possibleCodes.length > 0) {
+                const randomIndex = Math.floor(Math.random() * gameState.possibleCodes.length);
+                return gameState.possibleCodes[randomIndex];
+            }
+            return generateRandomCode();
+        }
+
+        function makeSmartGuess() {
+            if (gameState.possibleCodes.length > 0) {
+                // Choose from remaining possible codes
+                return gameState.possibleCodes[Math.floor(Math.random() * Math.min(10, gameState.possibleCodes.length))];
+            }
+            return generateRandomCode();
+        }
+
+        function makeOptimalGuess() {
+            if (gameState.possibleCodes.length > 0) {
+                // Use minimax strategy - pick the guess that minimizes the maximum number of remaining possibilities
+                let bestGuess = gameState.possibleCodes[0];
+                let minMaxRemaining = Infinity;
+                
+                const candidateGuesses = gameState.possibleCodes.length > 50 ? 
+                    gameState.possibleCodes.slice(0, 50) : gameState.possibleCodes;
+                
+                for (const guess of candidateGuesses) {
+                    const feedbackGroups = new Map();
+                    
+                    for (const possibleCode of gameState.possibleCodes) {
+                        const feedback = calculateFeedback(guess, possibleCode);
+                        const key = `${feedback.black}-${feedback.white}`;
+                        feedbackGroups.set(key, (feedbackGroups.get(key) || 0) + 1);
+                    }
+                    
+                    const maxGroupSize = Math.max(...feedbackGroups.values());
+                    
+                    if (maxGroupSize < minMaxRemaining) {
+                        minMaxRemaining = maxGroupSize;
+                        bestGuess = guess;
+                    }
+                }
+                
+                return bestGuess;
+            }
+            return generateRandomCode();
+        }
+
+        function filterPossibleCodes(guess, actualFeedback) {
+            gameState.possibleCodes = gameState.possibleCodes.filter(code => {
+                const expectedFeedback = calculateFeedback(guess, code);
+                return expectedFeedback.black === actualFeedback.black && 
+                       expectedFeedback.white === actualFeedback.white;
+            });
+        }
+
+        // Modal functions
+        function showRules() {
+            document.getElementById('rulesModal').style.display = 'block';
+        }
+
+        function closeRules() {
+            document.getElementById('rulesModal').style.display = 'none';
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            const btn = event.target;
+            btn.textContent = gameState.soundEnabled ? '🔊 Sound' : '🔇 Sound';
+            playSound('click');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', initGame);
+
+        document.querySelectorAll('input[name="role"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                newGame();
+            });
+        });
+
+        document.getElementById('difficulty').addEventListener('change', (e) => {
+            gameState.difficulty = e.target.value;
+        });
+
+        // Close modal when clicking outside
+        window.addEventListener('click', (event) => {
+            const modal = document.getElementById('rulesModal');
+            if (event.target === modal) {
+                closeRules();
+            }
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            if (gameState.gameOver) return;
+            
+            // Number keys to select slots
+            if (event.key >= '1' && event.key <= '4') {
+                selectSlot(parseInt(event.key) - 1);
+                return;
+            }
+            
+            // Arrow keys to navigate slots
+            if (event.key === 'ArrowLeft' && gameState.selectedSlot > 0) {
+                selectSlot(gameState.selectedSlot - 1);
+            } else if (event.key === 'ArrowRight' && gameState.selectedSlot < 3) {
+                selectSlot(gameState.selectedSlot + 1);
+            }
+            
+            // Color shortcuts
+            const colorShortcuts = {
+                'r': 'red',
+                'b': 'blue', 
+                'g': 'green',
+                'y': 'yellow',
+                'p': 'purple',
+                'o': 'orange'
+            };
+            
+            if (colorShortcuts[event.key.toLowerCase()]) {
+                selectColor(colorShortcuts[event.key.toLowerCase()]);
+            }
+            
+            // Enter to submit
+            if (event.key === 'Enter' && gameState.playerRole === 'guesser') {
+                const btn = document.getElementById('submitBtn');
+                if (!btn.disabled) {
+                    submitGuess();
+                }
+            } else if (event.key === 'Enter' && gameState.playerRole === 'coder') {
+                const btn = document.getElementById('setCodeBtn');
+                if (!btn.disabled) {
+                    setSecretCode();
+                }
+            }
+        });
+
+        // Touch/Mobile optimizations
+        let touchStartY = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            const touchEndY = e.touches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            // Prevent bounce scrolling on iOS
+            if (Math.abs(diff) > 5) {
+                const attemptsEl = document.getElementById('attempts');
+                const isScrollable = attemptsEl.scrollHeight > attemptsEl.clientHeight;
+                
+                if (!isScrollable || 
+                    (diff > 0 && attemptsEl.scrollTop >= attemptsEl.scrollHeight - attemptsEl.clientHeight) ||
+                    (diff < 0 && attemptsEl.scrollTop <= 0)) {
+                    e.preventDefault();
+                }
+            }
+        }, { passive: false });
+
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', (event) => {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
+        // Add visual feedback for touch
+        document.addEventListener('touchstart', (e) => {
+            if (e.target.classList.contains('current-slot') || 
+                e.target.classList.contains('color-option') ||
+                e.target.classList.contains('btn')) {
+                e.target.style.transform = 'scale(0.95)';
+            }
+        });
+
+        document.addEventListener('touchend', (e) => {
+            if (e.target.classList.contains('current-slot') || 
+                e.target.classList.contains('color-option') ||
+                e.target.classList.contains('btn')) {
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
