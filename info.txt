@@ -1,0 +1,43 @@
+Das Ziel des Spiels ist es, einen geheimen Code aus vier Farben zu knacken, den der Gegner (entweder der Computer oder du) festgelegt hat. Dir stehen dafür sechs verschiedene Farben zur Verfügung. Nach jedem Rateversuch erhältst du Feedback, das dir hilft, dem Code näherzukommen:
+
+- Schwarzer Stift: Zeigt an, dass eine Farbe an der exakt richtigen Position ist.
+
+- Weißer Stift: Zeigt an, dass eine Farbe zwar im Code vorkommt, sich aber an der falschen Position befindet.
+
+Du hast maximal 12 Versuche, um den Code zu erraten. Farben können im Code auch mehrfach vorkommen.
+
+Besondere Merkmale des Spiels
+
+Basierend auf der Analyse der Datei hat dieses Spiel einige besondere Funktionen:
+
+- Zwei Spielmodi: Du kannst wählen, welche Rolle du einnimmst:
+
+- - Ich rate: Der Computer generiert einen geheimen Code und du musst ihn erraten. Das ist der klassische Spielmodus.
+
+- - KI rät: Du legst einen geheimen Code aus vier Farben fest und die künstliche Intelligenz (KI) des Spiels versucht, deinen Code zu knacken.
+
+- Einstellbarer KI-Schwierigkeitsgrad: Wenn die KI rät, kannst du ihre "Intelligenz" einstellen:
+
+- - Einfach: Die KI rät eher zufällig aus den noch möglichen Kombinationen.
+
+- - Mittel: Die KI nutzt eine solidere Strategie, um den Code zu finden (im Code als "classic opening" bezeichnet).
+
+- - Schwer: Die KI verwendet einen optimierten Algorithmus (eine Art Minimax-Strategie), um mit jedem Versuch die Anzahl der verbleibenden Möglichkeiten so stark wie möglich zu reduzieren. Dies ist die effizienteste Methode, um das Spiel zu lösen.
+
+- Moderne Benutzeroberfläche und Bedienung:
+
+- - Das Spiel hat ein ansprechendes, dunkles Design mit Animationen.
+
+- - Die Bedienung ist intuitiv per Mausklick auf die Steckplätze und die Farbpalette.
+
+- - Es gibt Tastaturkürzel zur Steuerung (Ziffern 1-4 für die Plätze, Pfeiltasten zum Navigieren und Anfangsbuchstaben für die Farben).
+
+- - Das Spiel ist für die Nutzung auf Mobilgeräten optimiert und unterstützt Touch-Eingaben.
+
+- Interaktives Feedback:
+
+- - Es gibt Soundeffekte für Aktionen wie das Auswählen einer Farbe, das Abgeben eines Versuchs oder einen Sieg/Verlust. Der Ton kann stummgeschaltet werden.
+
+- - Eine klare Statusanzeige informiert dich über den Spielverlauf (z.B. "Du hast den Code geknackt!").
+
+- - Ein "Regeln"-Button öffnet ein Fenster mit einer klaren Erklärung des Spielablaufs.
